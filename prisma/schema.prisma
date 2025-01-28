@@ -1,0 +1,1421 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model api_credentials {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  identifier  String?   @db.Text
+  name        String?   @db.VarChar(255)
+  permissions String?   @db.LongText
+  ips         String?   @db.LongText
+  created_at  DateTime? @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+  updated_at  DateTime? @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+  last_access DateTime? @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+}
+
+model api_logs {
+  id             Int      @id @default(autoincrement()) @db.UnsignedInt
+  relid          Int      @default(0) @db.UnsignedInt
+  action         String?  @db.VarChar(255)
+  method         String?  @default("GET") @db.VarChar(255)
+  request_header String?  @db.LongText
+  request_body   String?  @db.LongText
+  response       String?  @db.LongText
+  ip             String?  @default("0.0.0.0") @db.VarChar(50)
+  created_at     DateTime @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+}
+
+model blocked {
+  id      Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id Int      @default(0) @db.UnsignedInt
+  reason  String?  @db.VarChar(50)
+  phone   String?  @db.VarChar(20)
+  ip      String?  @db.VarChar(50)
+  email   String?  @db.VarChar(255)
+  ctime   DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  endtime DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+
+  @@index([user_id], map: "user_id")
+}
+
+model categories {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  parent     Int      @default(0) @db.UnsignedInt
+  type       String?  @db.VarChar(30)
+  kind       String?  @db.VarChar(50)
+  kind_id    Int      @default(0) @db.UnsignedInt
+  status     String   @default("active") @db.VarChar(30)
+  visibility String   @default("visible") @db.VarChar(20)
+  rank       Int      @default(0) @db.UnsignedInt
+  options    String?  @db.Text
+  ctime      DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  notes      String?  @db.Text
+}
+
+model categories_lang {
+  id              Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id        Int     @default(0) @db.UnsignedInt
+  lang            String  @default("none") @db.VarChar(5)
+  title           String? @db.VarChar(255)
+  route           String? @db.VarChar(255)
+  sub_title       String? @db.VarChar(255)
+  content         String? @db.Text
+  seo_title       String? @db.VarChar(255)
+  seo_keywords    String? @db.VarChar(255)
+  seo_description String? @db.VarChar(300)
+  faq             String? @db.Text
+  options         String? @db.Text
+}
+
+model checkouts {
+  id      BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id Int      @default(0) @db.UnsignedInt
+  type    String   @default("none") @db.VarChar(30)
+  status  String   @default("unpaid") @db.VarChar(30)
+  items   String?  @db.Text
+  data    String?  @db.Text
+  cdate   DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  mdfdate DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+
+  @@index([type], map: "type")
+  @@index([user_id], map: "user_id")
+}
+
+model cities {
+  id         BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  country_id Int     @default(0) @db.UnsignedInt
+  name       String? @db.VarChar(255)
+  slug       String? @db.VarChar(50)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model configurations {
+  name       String?  @db.VarChar(300)
+  content    String?  @db.Text
+  created_at DateTime @default(now()) @db.DateTime(0)
+  updated_at DateTime @default(now()) @db.DateTime(0)
+
+  @@ignore
+}
+
+model contact_messages {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  name          String?  @db.VarChar(75)
+  surname       String   @db.VarChar(75)
+  full_name     String?  @db.VarChar(150)
+  email         String?  @db.VarChar(200)
+  phone         String?  @db.VarChar(30)
+  message       String?  @db.Text
+  admin_message String?  @db.Text
+  cdate         DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  unread        Int      @default(0) @db.UnsignedInt
+  ip            String?  @db.VarChar(50)
+  lang          String   @default("none") @db.VarChar(5)
+}
+
+model counties {
+  id         BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  country_id Int     @default(0) @db.UnsignedInt
+  city_id    BigInt  @default(0) @db.UnsignedBigInt
+  name       String? @db.VarChar(50)
+  slug       String? @db.VarChar(50)
+}
+
+model countries {
+  id           Int     @id @default(autoincrement()) @db.UnsignedInt
+  common_name  String? @db.VarChar(200)
+  native_name  String? @db.VarChar(200)
+  a2_iso       String? @db.VarChar(5)
+  a3_iso       String? @db.VarChar(5)
+  tld          String? @db.VarChar(10)
+  currency     String? @db.VarChar(100)
+  calling_code String? @db.VarChar(10)
+  capital      String? @db.VarChar(150)
+  region       String  @db.VarChar(100)
+  subregion    String  @db.VarChar(100)
+  languages    String? @db.VarChar(255)
+  latlng       String? @db.VarChar(30)
+}
+
+model countries_lang {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id Int     @default(0) @db.UnsignedInt
+  lang     String  @default("none") @db.VarChar(5)
+  name     String? @db.VarChar(255)
+  slug     String? @db.VarChar(255)
+}
+
+model coupons {
+  id                    Int      @id @default(autoincrement()) @db.UnsignedInt
+  status                String   @default("active") @db.VarChar(40)
+  code                  String?  @db.VarChar(200)
+  pservices             String?  @db.Text
+  period_type           String?  @db.VarChar(10)
+  period_duration       Int      @default(0)
+  type                  String   @default("none") @db.VarChar(40)
+  rate                  Int      @default(0)
+  amount                Decimal  @default(0.0000) @db.Decimal(16, 4)
+  currency              Int      @default(0)
+  uses                  Int      @default(0) @db.UnsignedInt
+  maxuses               Int      @default(0) @db.UnsignedInt
+  taxfree               Int      @default(0) @db.UnsignedInt
+  applyonce             Int      @default(0) @db.UnsignedInt
+  onetime_use_per_order Int      @default(0) @db.UnsignedInt
+  newsignups            Int      @default(0) @db.UnsignedInt
+  existingcustomer      Int      @default(0)
+  dealership            Int      @default(0) @db.UnsignedInt
+  use_merge             Int      @default(0)
+  used_in_invoices      Int      @default(0) @db.UnsignedInt
+  recurring             Int      @default(0) @db.UnsignedInt
+  recurring_num         Int      @default(0) @db.UnsignedInt
+  cdate                 DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  duedate               DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  notes                 String?  @db.Text
+}
+
+model currencies {
+  id        Int     @id @default(autoincrement()) @db.UnsignedInt
+  status    String  @default("active") @db.VarChar(45)
+  local     Int     @default(0) @db.UnsignedInt
+  country   String? @db.VarChar(5)
+  countries String? @db.Text
+  code      String? @db.VarChar(20)
+  name      String? @db.VarChar(150)
+  prefix    String? @db.VarChar(10)
+  suffix    String? @db.VarChar(10)
+  rate      Decimal @default(0.00000) @db.Decimal(10, 5)
+  format    Int     @default(0) @db.UnsignedInt
+  modules   String? @db.Text
+}
+
+model customer_feedbacks {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  status       String   @default("pending") @db.VarChar(30)
+  full_name    String?  @db.VarChar(255)
+  company_name String?  @db.VarChar(255)
+  email        String?  @db.VarChar(200)
+  ctime        DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  rank         Int      @default(0) @db.UnsignedInt
+  ip           String?  @db.VarChar(50)
+  unread       Int      @default(0) @db.UnsignedInt
+}
+
+model customer_feedbacks_lang {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id Int     @default(0) @db.UnsignedInt
+  lang     String  @default("none") @db.VarChar(5)
+  message  String? @db.Text
+}
+
+model digital_ocean_droplate {
+  id          Int @id @default(autoincrement())
+  user_id     Int
+  order_id    Int
+  droplate_id Int
+  ssh_key_id  Int
+}
+
+model events {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id    Int      @default(0) @db.UnsignedInt
+  type       String   @default("none") @db.VarChar(30)
+  owner      String   @default("none") @db.VarChar(50)
+  owner_id   Int?     @default(0) @db.UnsignedInt
+  name       String?  @db.VarChar(100)
+  cdate      DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  status     String   @default("pending") @db.VarChar(20)
+  status_msg String?  @db.Text
+  unread     Int      @default(0) @db.UnsignedInt
+  data       String?  @db.Text
+
+  @@index([name], map: "name")
+  @@index([owner_id], map: "owner_id")
+  @@index([status], map: "status")
+  @@index([user_id], map: "user_id")
+}
+
+model fraud_detected_records {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  module     String?  @db.VarChar(255)
+  user_id    Int      @default(0) @db.UnsignedInt
+  message    String?  @db.VarChar(300)
+  created_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+}
+
+model income_expense {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  invoice_id  Int      @default(0) @db.UnsignedInt
+  type        String   @default("income") @db.VarChar(10)
+  amount      Decimal  @default(0.0000) @db.Decimal(16, 4)
+  currency    Int      @default(0)
+  cdate       DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  description String?  @db.Text
+}
+
+model invoices {
+  id                      Int      @id @default(autoincrement()) @db.UnsignedInt
+  number                  String?  @db.VarChar(20)
+  user_id                 Int      @default(0) @db.UnsignedInt
+  user_data               String?  @db.Text
+  cdate                   DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  duedate                 DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  datepaid                DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  refunddate              DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  local                   Int      @default(0) @db.UnsignedInt
+  legal                   Int      @db.UnsignedInt
+  taxed                   Int      @default(0) @db.UnsignedInt
+  taxed_file              String?  @db.Text
+  data                    String?  @db.Text
+  status                  String   @default("ghost") @db.VarChar(40)
+  currency                Int      @default(0) @db.UnsignedInt
+  taxation_type           String   @default("exclusive") @db.VarChar(50)
+  taxrate                 Decimal  @default(0.00) @db.Decimal(10, 2)
+  tax                     Decimal  @default(0.0000) @db.Decimal(16, 4)
+  subtotal                Decimal  @default(0.0000) @db.Decimal(16, 4)
+  total                   Decimal  @default(0.0000) @db.Decimal(16, 4)
+  recurring               Int      @default(0) @db.UnsignedInt
+  recurring_time          Int      @default(0) @db.UnsignedInt
+  recurring_period        String   @default("none") @db.VarChar(10)
+  discounts               String?  @db.Text
+  used_coupons            String?  @db.VarChar(300)
+  used_promotions         String?  @db.VarChar(300)
+  sendbta                 Int      @default(0) @db.UnsignedInt
+  sendbta_amount          Decimal  @default(0.0000) @db.Decimal(16, 4)
+  pmethod                 String   @default("none") @db.VarChar(50)
+  pmethod_commission      Decimal  @default(0.0000) @db.Decimal(16, 4)
+  pmethod_commission_rate Decimal  @default(0.00) @db.Decimal(10, 2)
+  pmethod_status          String?  @default("none") @db.VarChar(50)
+  pmethod_msg             String?  @db.VarChar(255)
+  notes                   String?  @db.Text
+  unread                  Int      @default(0) @db.UnsignedInt
+
+  @@index([user_id], map: "user_id")
+}
+
+model invoices_items {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  parent_id    Int      @default(0) @db.UnsignedInt
+  owner_id     Int      @default(0)
+  user_id      Int      @default(0) @db.UnsignedInt
+  user_pid     Int      @default(0)
+  options      String?  @db.Text
+  description  String?  @db.Text
+  quantity     Int      @default(1)
+  taxexempt    Int      @default(0) @db.UnsignedInt
+  oduedate     DateTime @default(dbgenerated("('1971-01-01 00:00:00')")) @db.DateTime(0)
+  amount       Decimal  @default(0.0000) @db.Decimal(16, 4)
+  total_amount Decimal  @default(0.0000) @db.Decimal(16, 4)
+  currency     Int      @default(0) @db.UnsignedInt
+  rank         Int      @default(0) @db.UnsignedInt
+
+  @@index([owner_id], map: "owner_id")
+  @@index([parent_id], map: "parent_id")
+  @@index([user_id], map: "user_id")
+  @@index([user_pid], map: "user_pid")
+}
+
+model ired_config_ids {
+  id          Int    @id @default(autoincrement())
+  server_name String @db.VarChar(150)
+  config_ids  String @db.VarChar(150)
+}
+
+model knowledgebase {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  category    Int      @default(0) @db.UnsignedInt
+  categories  String?  @db.VarChar(255)
+  sidebar     String?  @db.VarChar(10)
+  visit_count Int      @default(0) @db.UnsignedInt
+  useful      Int      @default(0) @db.UnsignedInt
+  useless     Int      @default(0) @db.UnsignedInt
+  private     Int      @default(0) @db.UnsignedInt
+  status      Int      @default(1) @db.UnsignedInt
+  rank        Int      @default(0) @db.UnsignedInt
+  ctime       DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+}
+
+model knowledgebase_lang {
+  id              Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id        Int     @default(0) @db.UnsignedInt
+  lang            String  @default("none") @db.VarChar(5)
+  route           String? @db.VarChar(255)
+  title           String? @db.VarChar(255)
+  content         String? @db.Text
+  seo_title       String? @db.VarChar(300)
+  seo_keywords    String? @db.VarChar(300)
+  seo_description String? @db.VarChar(300)
+  tags            String? @db.Text
+}
+
+model last_spam_records {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  subject      String?  @db.VarChar(255)
+  from_address String?  @db.VarChar(255)
+  to_address   String?  @db.VarChar(255)
+  from_name    String?  @db.VarChar(255)
+  to_name      String?  @db.VarChar(255)
+  message      String?  @db.Text
+  reason       String?  @db.VarChar(255)
+  ip           String?  @db.VarChar(30)
+  created_at   DateTime @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+}
+
+model mail_logs {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id   Int      @default(0) @db.UnsignedInt
+  reason    String?  @db.VarChar(255)
+  subject   String?  @db.VarChar(255)
+  content   String?  @db.LongText
+  addresses String?  @db.Text
+  data      String?  @db.Text
+  ctime     DateTime @default(now()) @db.Timestamp(0)
+  ip        String?  @db.VarChar(50)
+  private   Int      @default(0) @db.UnsignedInt
+
+  @@index([user_id], map: "user_id")
+}
+
+model menus {
+  id     Int     @id @default(autoincrement()) @db.UnsignedInt
+  parent Int     @default(0) @db.UnsignedInt
+  type   String? @db.VarChar(25)
+  icon   String? @db.VarChar(200)
+  rank   Int     @default(0) @db.UnsignedInt
+  target Int     @default(0) @db.UnsignedInt
+  status String  @default("active") @db.VarChar(20)
+  page   String? @db.VarChar(255)
+  onlyCa Int     @default(0) @db.UnsignedInt
+}
+
+model menus_lang {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id Int     @default(0) @db.UnsignedInt
+  lang     String? @db.VarChar(5)
+  title    String? @db.VarChar(255)
+  link     String? @db.VarChar(255)
+  extra    String? @db.Text
+}
+
+model mod_supportpin_manage_table {
+  id         Int       @id @default(autoincrement())
+  client_id  Int
+  pin        String    @db.VarChar(55)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  expire_at  DateTime? @db.DateTime(0)
+}
+
+model newsletters {
+  id      Int      @id @default(autoincrement()) @db.UnsignedInt
+  type    String?  @db.VarChar(10)
+  content String?  @db.VarChar(255)
+  lang    String   @default("none") @db.VarChar(5)
+  ctime   DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  ip      String?  @db.VarChar(50)
+}
+
+model notification_templates {
+  id                 Int                           @id @default(autoincrement()) @db.UnsignedInt
+  template_name      String?                       @db.VarChar(255)
+  template_type      String                        @default("mail") @db.VarChar(10)
+  type               String                        @db.VarChar(30)
+  criteria           String                        @db.VarChar(30)
+  newsletter         String                        @db.VarChar(10)
+  without_products   Int                           @default(0) @db.UnsignedInt
+  birthday_marketing Int                           @default(0) @db.UnsignedInt
+  cc                 String?                       @db.Text
+  subject            String?                       @db.VarChar(300)
+  message            String?                       @db.LongText
+  submission_type    String                        @db.VarChar(30)
+  user_groups        String?                       @db.Text
+  departments        String                        @db.Text
+  countries          String                        @db.Text
+  languages          String                        @db.Text
+  services           String                        @db.Text
+  servers            String                        @db.Text
+  addons             String                        @db.Text
+  services_status    String                        @db.Text
+  client_status      String?                       @db.Text
+  auto_submission    Int                           @default(0) @db.UnsignedInt
+  period             notification_templates_period @default(onetime)
+  period_datetime    DateTime                      @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  period_month       Int                           @default(-1)
+  period_day         Int                           @default(-1)
+  period_hour        Int                           @default(-1)
+  period_minute      Int                           @default(-1)
+  created_at         DateTime                      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  updated_at         DateTime                      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+}
+
+model notification_templates_logs {
+  id             Int      @id @default(autoincrement()) @db.UnsignedInt
+  owner_id       Int      @default(0)
+  reminding_date DateTime @default(dbgenerated("('1881-05-19')")) @db.Date
+  reminding_time DateTime @default(dbgenerated("('00:00:00')")) @db.Time(0)
+}
+
+model pages {
+  id                   Int      @id @default(autoincrement()) @db.UnsignedInt
+  type                 String?  @db.VarChar(50)
+  category             Int      @default(0) @db.UnsignedInt
+  categories           String?  @db.VarChar(150)
+  sidebar              String?  @db.VarChar(15)
+  status               String   @default("active") @db.VarChar(20)
+  visibility           String   @default("visible") @db.VarChar(30)
+  visible_to_user      Int      @default(0) @db.UnsignedInt
+  rank                 Int      @default(0) @db.UnsignedInt
+  override_usrcurrency Int      @default(0) @db.UnsignedInt
+  taxexempt            Int      @default(0) @db.UnsignedInt
+  addons               String?  @db.VarChar(300)
+  requirements         String?  @db.VarChar(300)
+  options              String?  @db.Text
+  affiliate_disable    Int      @default(0) @db.UnsignedInt
+  affiliate_rate       Decimal  @default(0.00) @db.Decimal(10, 2)
+  ctime                DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  module               String?  @db.VarChar(100)
+  module_data          String?  @db.Text
+  notes                String?  @db.Text
+  subdomains           String?  @db.Text
+}
+
+model pages_lang {
+  id              Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id        Int     @default(0) @db.UnsignedInt
+  lang            String  @default("none") @db.VarChar(5)
+  title           String? @db.VarChar(255)
+  content         String? @db.LongText
+  route           String? @db.VarChar(255)
+  seo_title       String? @db.VarChar(255)
+  seo_keywords    String? @db.VarChar(255)
+  seo_description String? @db.VarChar(255)
+  options         String? @db.Text
+}
+
+model periodic_outgoings {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  amount        Decimal  @default(0.0000) @db.Decimal(16, 4)
+  currency      Int      @default(0)
+  description   String?  @db.VarChar(255)
+  cdate         DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  period_day    Int      @default(1)
+  period_hour   Int      @default(0)
+  period_minute Int      @default(0)
+}
+
+model pictures {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id Int     @default(0) @db.UnsignedInt
+  owner    String? @db.VarChar(100)
+  reason   String? @db.VarChar(50)
+  name     String? @db.VarChar(255)
+}
+
+model prices {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  lang     String  @default("none") @db.VarChar(5)
+  owner    String? @db.VarChar(50)
+  owner_id Int     @default(0) @db.UnsignedInt
+  type     String? @db.VarChar(50)
+  period   String  @default("none") @db.VarChar(30)
+  time     Int     @default(0) @db.UnsignedInt
+  amount   Decimal @default(0.0000) @db.Decimal(16, 4)
+  setup    Decimal @db.Decimal(16, 4)
+  cid      Int     @default(0) @db.UnsignedInt
+  discount String? @db.VarChar(10)
+  rank     Int     @default(0) @db.UnsignedInt
+}
+
+model privileges {
+  id         Int     @id @default(autoincrement()) @db.UnsignedInt
+  name       String? @db.VarChar(100)
+  privileges String? @db.Text
+}
+
+model products {
+  id                   Int      @id @default(autoincrement()) @db.UnsignedInt
+  type                 String?  @db.VarChar(50)
+  type_id              Int      @default(0) @db.UnsignedInt
+  category             Int      @default(0) @db.UnsignedInt
+  categories           String?  @db.Text
+  status               String   @default("active") @db.VarChar(40)
+  visibility           String   @default("visible") @db.VarChar(30)
+  ctime                DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  rank                 Int      @default(0) @db.UnsignedInt
+  stock                String?  @db.VarChar(11)
+  override_usrcurrency Int      @default(0)
+  taxexempt            Int      @default(0) @db.UnsignedInt
+  upgrade              Int      @default(0) @db.UnsignedInt
+  options              String?  @db.Text
+  affiliate_disable    Int      @default(0) @db.UnsignedInt
+  affiliate_rate       Decimal  @default(0.00) @db.Decimal(10, 2)
+  upgradeable_products String?  @db.VarChar(300)
+  addons               String?  @db.VarChar(300)
+  requirements         String?  @db.VarChar(300)
+  module               String   @default("none") @db.VarChar(100)
+  module_data          String?  @db.Text
+  notes                String?  @db.Text
+  subdomains           String?  @db.Text
+}
+
+model products_addons {
+  id                   Int     @id @default(autoincrement()) @db.UnsignedInt
+  mcategory            String? @db.VarChar(20)
+  category             Int     @default(0) @db.UnsignedInt
+  status               String  @default("active") @db.VarChar(30)
+  rank                 Int     @default(0) @db.UnsignedInt
+  override_usrcurrency Int     @default(0) @db.UnsignedInt
+  taxexempt            Int     @default(0) @db.UnsignedInt
+  requirements         String? @db.VarChar(300)
+  product_type_link    String? @db.VarChar(30)
+  product_id_link      Int     @default(0) @db.UnsignedInt
+}
+
+model products_addons_lang {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id    Int     @default(0) @db.UnsignedInt
+  lang        String  @default("none") @db.VarChar(5)
+  name        String? @db.VarChar(255)
+  description String? @db.VarChar(300)
+  type        String  @default("none") @db.VarChar(30)
+  properties  String? @db.Text
+  options     String? @db.Text
+  lid         Int     @default(0) @db.UnsignedInt
+}
+
+model products_lang {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id Int     @default(0) @db.UnsignedInt
+  lang     String  @default("none") @db.VarChar(5)
+  title    String? @db.VarChar(255)
+  features String? @db.Text
+  options  String? @db.Text
+}
+
+model products_requirements {
+  id              Int     @id @default(autoincrement()) @db.UnsignedInt
+  mcategory       String? @db.VarChar(20)
+  category        Int     @default(0) @db.UnsignedInt
+  status          String  @default("active") @db.VarChar(20)
+  rank            Int     @default(0) @db.UnsignedInt
+  module_co_names String? @db.Text
+}
+
+model products_requirements_lang {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id    Int     @default(0) @db.UnsignedInt
+  lang        String? @default("none") @db.VarChar(5)
+  name        String? @db.VarChar(255)
+  description String? @db.VarChar(300)
+  type        String? @default("text") @db.VarChar(30)
+  properties  String? @db.Text
+  options     String? @db.Text
+  lid         Int     @default(0) @db.UnsignedInt
+}
+
+model promotions {
+  id              Int      @id @default(autoincrement()) @db.UnsignedInt
+  name            String?  @db.VarChar(255)
+  status          String   @default("active") @db.VarChar(40)
+  primary_product String?  @db.Text
+  product         String?  @db.VarChar(150)
+  period1         String   @default("none") @db.VarChar(10)
+  period2         String   @default("none") @db.VarChar(10)
+  period_time1    Int      @default(1)
+  period_time2    Int      @default(1)
+  type            String   @default("none") @db.VarChar(40)
+  rate            Int      @default(0) @db.UnsignedInt
+  amount          Decimal  @default(0.0000) @db.Decimal(16, 4)
+  currency        Int      @default(0) @db.UnsignedInt
+  applyonce       Int      @default(0) @db.UnsignedInt
+  uses            Int      @default(0) @db.UnsignedInt
+  maxuses         Int      @default(0) @db.UnsignedInt
+  cdate           DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  duedate         DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  notes           String   @db.Text
+}
+
+model servers {
+  id                        Int     @id @default(autoincrement()) @db.UnsignedInt
+  type                      String  @default("none") @db.VarChar(30)
+  name                      String? @db.VarChar(255)
+  ns1                       String? @db.VarChar(100)
+  ns2                       String? @db.VarChar(100)
+  ns3                       String? @db.VarChar(100)
+  ns4                       String? @db.VarChar(100)
+  maxaccounts               Int     @default(0) @db.UnsignedInt
+  ip                        String  @default("0.0.0.0") @db.VarChar(255)
+  username                  String? @db.VarChar(150)
+  password                  String? @db.VarChar(255)
+  access_hash               String? @db.Text
+  secure                    Int     @default(0) @db.UnsignedInt
+  port                      Int     @default(0) @db.UnsignedInt
+  status                    String  @default("active") @db.VarChar(40)
+  updowngrade_remove_server String  @default("then|2") @db.VarChar(50)
+  full_alert                Int     @default(0) @db.UnsignedInt
+  cost_price                Decimal @default(0.000000) @db.Decimal(10, 6)
+  cost_currency             Int     @default(0) @db.UnsignedInt
+}
+
+model servers_groups {
+  id        Int     @id @default(autoincrement()) @db.UnsignedInt
+  type      String? @default("hosting") @db.VarChar(50)
+  name      String? @db.VarChar(255)
+  fill_type Int?    @default(1) @db.UnsignedInt
+  servers   String? @db.Text
+}
+
+model slides {
+  id     Int      @id @default(autoincrement()) @db.UnsignedInt
+  type   String?  @db.VarChar(30)
+  rank   Int      @default(0) @db.UnsignedInt
+  status String   @default("active") @db.VarChar(30)
+  ctime  DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  extra  String?  @db.Text
+}
+
+model slides_lang {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id    Int     @default(0) @db.UnsignedInt
+  lang        String  @default("none") @db.VarChar(5)
+  title       String? @db.VarChar(255)
+  description String? @db.MediumText
+  link        String? @db.VarChar(255)
+}
+
+model sms_logs {
+  id       Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id  Int      @default(0) @db.UnsignedInt
+  reason   String?  @db.VarChar(255)
+  title    String?  @db.VarChar(50)
+  content  String?  @db.Text
+  numbers  String?  @db.Text
+  data     String?  @db.Text
+  ctime    DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  ip       String?  @db.VarChar(50)
+  private  Int      @default(0)
+  owner    String   @default("none") @db.VarChar(40)
+  owner_id Int      @default(0) @db.UnsignedInt
+
+  @@index([user_id], map: "user_id")
+}
+
+model tickets {
+  id             Int      @id @default(autoincrement()) @db.UnsignedInt
+  refnum         String?  @db.VarChar(255)
+  lang           String   @default("none") @db.VarChar(5)
+  did            Int      @default(0) @db.UnsignedInt
+  user_id        Int      @default(0) @db.UnsignedInt
+  pipe           Int      @default(0) @db.UnsignedInt
+  status         String?  @db.VarChar(30)
+  cstatus        Int      @default(0) @db.UnsignedInt
+  locked         Int      @default(0)
+  priority       Int      @default(0)
+  title          String?  @db.VarChar(255)
+  name           String?  @db.VarChar(255)
+  email          String?  @db.VarChar(255)
+  phone          String?  @db.VarChar(255)
+  ip             String?  @db.VarChar(50)
+  ctime          DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  lastreply      DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  userunread     Int      @default(0) @db.UnsignedInt
+  adminunread    Int      @default(0) @db.UnsignedInt
+  service        Int      @default(0) @db.UnsignedInt
+  assigned       Int      @default(0) @db.UnsignedInt
+  assignedBy     Int      @default(0) @db.UnsignedInt
+  custom_fields  String?  @db.Text
+  user_is_typing DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  notes          String?  @db.Text
+
+  @@index([assigned], map: "assigned")
+  @@index([did], map: "did")
+  @@index([service], map: "service")
+  @@index([user_id], map: "user_id")
+}
+
+model tickets_attachments {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  ticket_id Int      @default(0) @db.UnsignedInt
+  reply_id  Int      @default(0) @db.UnsignedInt
+  user_id   Int      @default(0) @db.UnsignedInt
+  name      String?  @db.VarChar(255)
+  file_path String?  @db.VarChar(255)
+  file_name String?  @db.VarChar(255)
+  file_size Int      @default(0) @db.UnsignedInt
+  ctime     DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  ip        String?  @db.VarChar(30)
+
+  @@index([reply_id], map: "reply_id")
+  @@index([ticket_id], map: "ticket_id")
+  @@index([user_id], map: "user_id")
+}
+
+model tickets_custom_fields {
+  id     Int    @id @default(autoincrement()) @db.UnsignedInt
+  did    Int    @default(0) @db.UnsignedInt
+  status String @default("active") @db.VarChar(20)
+  rank   Int    @default(0) @db.UnsignedInt
+}
+
+model tickets_custom_fields_lang {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id    Int     @default(0) @db.UnsignedInt
+  lang        String? @default("none") @db.VarChar(5)
+  name        String? @db.VarChar(255)
+  description String? @db.VarChar(300)
+  type        String? @default("text") @db.VarChar(30)
+  properties  String? @db.Text
+  options     String? @db.Text
+  lid         Int     @default(0) @db.UnsignedInt
+}
+
+model tickets_departments {
+  id         Int     @id @default(autoincrement()) @db.UnsignedInt
+  rank       Int     @default(0) @db.UnsignedInt
+  appointees String? @db.VarChar(255)
+}
+
+model tickets_departments_lang {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id    Int     @default(0) @db.UnsignedInt
+  lang        String  @default("none") @db.VarChar(5)
+  name        String? @db.VarChar(255)
+  description String? @db.Text
+}
+
+model tickets_predefined_replies {
+  id       Int @id @default(autoincrement()) @db.UnsignedInt
+  category Int @default(0) @db.UnsignedInt
+}
+
+model tickets_predefined_replies_lang {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id Int     @default(0) @db.UnsignedInt
+  lang     String  @default("none") @db.VarChar(5)
+  name     String? @db.VarChar(255)
+  message  String? @db.Text
+}
+
+model tickets_replies {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id   Int      @default(0) @db.UnsignedInt
+  owner_id  Int      @default(0) @db.UnsignedInt
+  admin     Int      @default(0) @db.UnsignedInt
+  name      String?  @db.VarChar(255)
+  encrypted Int      @default(0) @db.UnsignedInt
+  pipe      Int?     @default(0) @db.UnsignedInt
+  ai        Int      @default(0) @db.UnsignedInt
+  message   String?  @db.LongText
+  ctime     DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  ip        String?  @db.VarChar(50)
+
+  @@index([owner_id], map: "owner_id")
+  @@index([user_id], map: "user_id")
+}
+
+model tickets_statuses {
+  id      Int     @id @default(autoincrement()) @db.UnsignedInt
+  type    String? @default("waiting") @db.VarChar(30)
+  color   String? @db.VarChar(30)
+  sortnum Int     @default(0) @db.UnsignedInt
+}
+
+model tickets_statuses_lang {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id Int     @default(0) @db.UnsignedInt
+  lang     String  @default("none") @db.VarChar(5)
+  name     String? @db.VarChar(255)
+}
+
+model tickets_tasks {
+  id            Int     @id @default(autoincrement()) @db.UnsignedInt
+  name          String? @db.VarChar(300)
+  departments   String? @db.VarChar(400)
+  statuses      String? @db.VarChar(400)
+  priorities    String? @db.VarChar(400)
+  delay_time    Int     @default(1) @db.UnsignedInt
+  department    Int     @default(0) @db.UnsignedInt
+  status        String? @db.VarChar(400)
+  priority      Int     @default(0) @db.UnsignedInt
+  assign_to     Int     @default(0) @db.UnsignedInt
+  mark_locked   Int     @default(0) @db.UnsignedInt
+  repeat_action Int     @default(0) @db.UnsignedInt
+  template      String? @db.VarChar(300)
+  reply         String? @db.LongText
+}
+
+model tickets_tasks_logs {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  owner_id   Int       @default(0) @db.UnsignedInt
+  ticket_id  Int       @default(0) @db.UnsignedInt
+  created_at DateTime? @default(dbgenerated("('1971-01-01 00:00:00')")) @db.DateTime(0)
+}
+
+model tldlist {
+  id                   Int      @id @default(autoincrement()) @db.UnsignedInt
+  status               String   @default("active") @db.VarChar(40)
+  cdate                DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  name                 String?  @db.VarChar(50)
+  rank                 Int      @default(0) @db.UnsignedInt
+  min_years            Int      @default(1) @db.UnsignedInt
+  max_years            Int      @default(10) @db.UnsignedInt
+  paperwork            Int      @default(0) @db.UnsignedInt
+  register_cost        Decimal  @default(0.0000) @db.Decimal(16, 4)
+  renewal_cost         Decimal  @default(0.0000) @db.Decimal(16, 4)
+  transfer_cost        Decimal  @default(0.0000) @db.Decimal(16, 4)
+  promo_status         Int      @default(0) @db.UnsignedInt
+  promo_register_price Decimal  @default(0.0000) @db.Decimal(16, 4)
+  promo_transfer_price Decimal  @default(0.0000) @db.Decimal(16, 4)
+  promo_duedate        DateTime @default(dbgenerated("('1881-05-19')")) @db.Date
+  currency             Int      @default(0)
+  dns_manage           Int      @default(0) @db.UnsignedInt
+  whois_privacy        Int      @default(0) @db.UnsignedInt
+  epp_code             Int      @default(0) @db.UnsignedInt
+  module               String   @default("none") @db.VarChar(100)
+  affiliate_disable    Int      @default(0) @db.UnsignedInt
+  affiliate_rate       Decimal  @default(0.00) @db.Decimal(10, 2)
+  required_docs_info   String?  @db.Text
+}
+
+model tldlist_docs {
+  id        Int     @id @default(autoincrement()) @db.UnsignedInt
+  tld       String? @db.VarChar(30)
+  type      String? @default("text") @db.VarChar(50)
+  options   String? @db.Text
+  languages String? @db.Text
+  status    String  @default("active") @db.VarChar(25)
+  sortnum   Int     @default(0)
+}
+
+model users {
+  id               Int      @id @default(autoincrement()) @db.UnsignedInt
+  type             String?  @db.VarChar(20)
+  group_id         Int      @default(0) @db.UnsignedInt
+  status           String   @default("active") @db.VarChar(40)
+  name             String?  @db.VarChar(80)
+  surname          String?  @db.VarChar(80)
+  full_name        String?  @db.VarChar(160)
+  company_name     String?  @db.VarChar(200)
+  phone            String?  @db.VarChar(30)
+  email            String?  @db.VarChar(150)
+  password         String?  @db.VarChar(150)
+  creation_time    DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  last_login_time  DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  login_token      String?  @db.VarChar(100)
+  secure_hash      String?  @db.Text
+  ip               String   @default("0.0.0.0") @db.VarChar(50)
+  lang             String   @default("none") @db.VarChar(10)
+  country          Int      @default(0) @db.UnsignedInt
+  currency         Int      @default(0) @db.UnsignedInt
+  balance          Decimal  @default(0.0000) @db.Decimal(16, 4)
+  balance_currency Int      @default(0) @db.UnsignedInt
+  balance_min      Decimal  @default(0.0000) @db.Decimal(16, 4)
+  privilege        Int      @default(0)
+  online           DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  blacklist        Int      @default(0) @db.UnsignedInt
+  aff_id           Int      @default(0) @db.UnsignedInt
+}
+
+model users_actions {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  owner_id      Int      @default(0) @db.UnsignedInt
+  reason        String?  @db.VarChar(255)
+  detail        String?  @db.VarChar(255)
+  locale_detail String?  @db.Text
+  data          String?  @db.LongText
+  ctime         DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  ip            String?  @db.VarChar(50)
+
+  @@index([detail], map: "detail")
+  @@index([owner_id], map: "owner_id")
+  @@index([reason], map: "reason")
+}
+
+model users_addresses {
+  id                 Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id           Int     @default(0) @db.UnsignedInt
+  country_id         Int     @default(0) @db.UnsignedInt
+  name               String? @db.VarChar(127)
+  surname            String? @db.VarChar(127)
+  full_name          String? @db.VarChar(255)
+  kind               String? @default("individual") @db.VarChar(50)
+  company_name       String? @db.VarChar(255)
+  company_tax_office String? @db.VarChar(100)
+  company_tax_number String? @db.VarChar(100)
+  phone              String? @db.VarChar(50)
+  email              String? @db.VarChar(255)
+  identity           String? @db.VarChar(255)
+  city               String? @db.VarChar(150)
+  counti             String? @db.VarChar(150)
+  address            String? @db.VarChar(255)
+  zipcode            String  @default("00000") @db.VarChar(20)
+  detouse            Int     @default(0) @db.UnsignedInt
+  status             String  @default("active") @db.VarChar(30)
+
+  @@index([country_id], map: "country_id")
+  @@index([owner_id], map: "owner_id")
+}
+
+model users_affiliate_history {
+  id             Int      @id @default(autoincrement()) @db.UnsignedInt
+  affiliate_id   Int      @default(0) @db.UnsignedInt
+  ctime          DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  transaction_id Int      @default(0)
+  description    String?  @db.VarChar(400)
+  amount         Decimal  @default(0.0000) @db.Decimal(16, 4)
+
+  @@index([affiliate_id], map: "affiliate_id")
+  @@index([transaction_id], map: "transaction_id")
+}
+
+model users_affiliate_hits {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  affiliate_id Int      @default(0) @db.UnsignedInt
+  referrer_id  Int
+  ip           String   @default("0.0.0.0") @db.VarChar(30)
+  ctime        DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([affiliate_id], map: "affiliate_id")
+  @@index([referrer_id], map: "referrer_id")
+}
+
+model users_affiliate_referrers {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  affiliate_id Int      @default(0)
+  referrer     String?  @db.VarChar(600)
+  ctime        DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([affiliate_id], map: "affiliate_id")
+}
+
+model users_affiliate_transactions {
+  id             Int      @id @default(autoincrement()) @db.UnsignedInt
+  affiliate_id   Int      @default(0) @db.UnsignedInt
+  order_id       Int      @default(0) @db.UnsignedInt
+  clicked_ctime  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  ctime          DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  clearing_date  DateTime @default(dbgenerated("('0000-00-00')")) @db.Date
+  completed_time DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  amount         Decimal  @default(0.0000) @db.Decimal(16, 4)
+  currency       Int      @default(0)
+  rate           Decimal  @default(0.00) @db.Decimal(10, 2)
+  commission     Decimal  @default(0.0000) @db.Decimal(16, 4)
+  exchange       Decimal  @default(0.0000) @db.Decimal(16, 4)
+  status         String   @default("approved") @db.VarChar(50)
+
+  @@index([affiliate_id], map: "affiliate_id")
+  @@index([order_id], map: "order_id")
+}
+
+model users_affiliate_withdrawals {
+  id             Int      @id @default(autoincrement()) @db.UnsignedInt
+  affiliate_id   Int      @default(0) @db.UnsignedInt
+  ctime          DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  completed_time DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  gateway        String?  @default("NULL") @db.VarChar(300)
+  gateway_info   String?  @db.Text
+  amount         Decimal  @default(0.0000) @db.Decimal(16, 4)
+  currency       Int      @default(0) @db.UnsignedInt
+  status         String   @default("awaiting") @db.VarChar(50)
+  status_msg     String?  @db.VarChar(300)
+
+  @@index([affiliate_id], map: "affiliate_id")
+}
+
+model users_affiliates {
+  id                  Int      @id @default(autoincrement()) @db.UnsignedInt
+  owner_id            Int      @default(0) @db.UnsignedInt
+  disabled            Int      @default(0) @db.UnsignedInt
+  disabled_note       String?  @db.Text
+  date                DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  payment_information String?  @db.Text
+  commission_type     String?  @db.VarChar(15)
+  commission_period   String?  @db.VarChar(15)
+  commission_value    Decimal  @default(0.0000) @db.Decimal(16, 4)
+  balance             Decimal  @default(0.0000) @db.Decimal(16, 4)
+  currency            Int      @default(0) @db.UnsignedInt
+
+  @@index([owner_id], map: "owner_id")
+}
+
+model users_credit_logs {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id     Int      @default(0) @db.UnsignedInt
+  type        String   @default("up") @db.VarChar(5)
+  amount      Decimal  @default(0.0000) @db.Decimal(16, 4)
+  cid         Int      @default(0) @db.UnsignedInt
+  cdate       DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  description String?  @db.Text
+
+  @@index([user_id], map: "user_id")
+}
+
+model users_custom_fields {
+  id         Int     @id @default(autoincrement()) @db.UnsignedInt
+  lang       String  @default("none") @db.VarChar(5)
+  type       String  @default("text") @db.VarChar(50)
+  skey       String? @db.VarChar(50)
+  name       String? @db.VarChar(100)
+  status     String? @default("inactive") @db.VarChar(40)
+  required   Int     @default(0) @db.UnsignedInt
+  uneditable Int     @default(0) @db.UnsignedInt
+  invoice    Int     @default(0) @db.UnsignedInt
+  signForm   Int     @default(0) @db.UnsignedInt
+  template   String? @db.Text
+  options    String? @db.Text
+  rank       Int     @default(0)
+}
+
+model users_document_filters {
+  id     Int     @id @default(autoincrement()) @db.UnsignedInt
+  name   String? @db.VarChar(255)
+  status String  @default("active") @db.VarChar(50)
+  rules  String? @db.Text
+  fields String? @db.Text
+}
+
+model users_document_records {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id     Int      @default(0) @db.UnsignedInt
+  filter_id   Int      @default(0) @db.UnsignedInt
+  field_lang  String   @default("none") @db.VarChar(5)
+  field_key   Int?     @default(0)
+  field_type  String   @default("none") @db.VarChar(100)
+  field_name  String?  @db.VarChar(300)
+  field_value String?  @db.Text
+  status      String   @default("awaiting") @db.VarChar(20)
+  status_msg  String?  @db.VarChar(300)
+  unread      Int      @default(0)
+  created_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  updated_at  DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([user_id], map: "user_id")
+}
+
+model users_gdpr_requests {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id      Int      @db.UnsignedInt
+  type         String?  @db.VarChar(50)
+  status       String   @default("pending") @db.VarChar(30)
+  status_admin String?  @default("none") @db.VarChar(50)
+  status_note  String?  @db.Text
+  remove_type  String?  @db.VarChar(50)
+  blacklist    Int      @default(0) @db.UnsignedInt
+  created_at   DateTime @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+  updated_at   DateTime @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+}
+
+model users_groups {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  name        String? @db.VarChar(255)
+  description String? @db.Text
+}
+
+model users_informations {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  owner_id   Int      @default(0) @db.UnsignedInt
+  name       String?  @db.VarChar(100)
+  content    String?  @db.Text
+  created_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  updated_at DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([name], map: "name")
+  @@index([owner_id], map: "owner_id")
+}
+
+model users_last_logins {
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
+  owner_id     Int      @default(0) @db.UnsignedInt
+  ctime        DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  ip           String?  @db.VarChar(50)
+  port         String?  @db.VarChar(20)
+  country_code String?  @db.VarChar(5)
+  city         String?  @db.VarChar(200)
+  latlng       String?  @db.VarChar(100)
+  user_agent   String?  @db.VarChar(255)
+  timezone     String?  @db.VarChar(50)
+  token        String?  @db.VarChar(300)
+
+  @@index([owner_id], map: "owner_id")
+}
+
+model users_products {
+  id                     Int       @id @default(autoincrement()) @db.UnsignedInt
+  owner_id               Int       @default(0) @db.UnsignedInt
+  invoice_id             Int       @default(0) @db.UnsignedInt
+  subscription_id        Int       @default(0) @db.UnsignedInt
+  type                   String    @default("none") @db.VarChar(30)
+  type_id                Int       @default(0)
+  product_id             Int       @default(0) @db.UnsignedInt
+  name                   String?   @db.VarChar(255)
+  period                 String    @default("none") @db.VarChar(30)
+  period_time            Int       @default(0) @db.UnsignedInt
+  total_amount           Decimal   @default(0.0000) @db.Decimal(16, 4)
+  amount                 Decimal   @default(0.0000) @db.Decimal(16, 4)
+  amount_cid             Int       @default(0) @db.UnsignedInt
+  status                 String    @default("waiting") @db.VarChar(50)
+  status_msg             String?   @db.Text
+  suspended_reason       String?   @db.VarChar(300)
+  pmethod                String?   @db.VarChar(100)
+  auto_pay               Int       @default(0) @db.UnsignedInt
+  cdate                  DateTime  @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  duedate                DateTime  @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  suspend_date           DateTime  @default(dbgenerated("('0000-00-00')")) @db.Date
+  cancel_date            DateTime  @default(dbgenerated("('0000-00-00')")) @db.Date
+  terminated_date        DateTime? @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+  server_terminated      Int       @default(0) @db.UnsignedInt
+  renewaldate            DateTime  @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  process_exemption_date DateTime  @default(dbgenerated("('1881-05-19 23:59:59')")) @db.DateTime(0)
+  module                 String?   @db.VarChar(100)
+  options                String?   @db.Text
+  notes                  String?   @db.Text
+  unread                 Int       @default(0) @db.UnsignedInt
+
+  @@index([invoice_id], map: "invoice_id")
+  @@index([owner_id], map: "owner_id")
+  @@index([product_id], map: "product_id")
+  @@index([status], map: "status")
+  @@index([type], map: "type")
+  @@index([type_id], map: "type_id")
+}
+
+model users_products_addons {
+  id                Int      @id @default(autoincrement()) @db.UnsignedInt
+  invoice_id        Int      @default(0) @db.UnsignedInt
+  pmethod           String?  @db.VarChar(100)
+  subscription_id   Int      @default(0) @db.UnsignedInt
+  owner_id          Int      @default(0) @db.UnsignedInt
+  addon_plink_relid Int      @default(0) @db.UnsignedInt
+  addon_key         String   @default("none") @db.VarChar(100)
+  addon_id          Int      @default(0) @db.UnsignedInt
+  addon_name        String?  @db.VarChar(255)
+  option_id         Int      @default(0) @db.UnsignedInt
+  option_name       String?  @db.VarChar(255)
+  option_quantity   Int      @default(0) @db.UnsignedInt
+  period_time       Int      @default(0) @db.UnsignedInt
+  period            String   @default("none") @db.VarChar(20)
+  amount            Decimal  @default(0.0000) @db.Decimal(16, 4)
+  cid               Int      @default(0) @db.UnsignedInt
+  status            String?  @default("waiting") @db.VarChar(50)
+  status_msg        String?  @db.Text
+  suspended_reason  String?  @db.VarChar(300)
+  module_data       String?  @db.Text
+  cdate             DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  renewaldate       DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  duedate           DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  unread            Int      @default(0) @db.UnsignedInt
+
+  @@index([addon_id], map: "addon_id")
+  @@index([option_id], map: "option_id")
+  @@index([owner_id], map: "owner_id")
+}
+
+model users_products_docs {
+  id          Int      @id @default(autoincrement())
+  owner_id    Int      @default(0) @db.UnsignedInt
+  doc_id      String?  @db.VarChar(300)
+  module_data String?  @db.Text
+  name        String?  @db.VarChar(255)
+  value       String?  @db.Text
+  file        String?  @db.Text
+  status      String   @default("unsent") @db.VarChar(50)
+  status_msg  String?  @db.Text
+  created_at  DateTime @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+  updated_at  DateTime @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+}
+
+model users_products_requirements {
+  id               Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner_id         Int     @default(0) @db.UnsignedInt
+  requirement_key  String? @db.VarChar(150)
+  requirement_id   Int     @default(0) @db.UnsignedInt
+  requirement_name String? @db.VarChar(255)
+  response_type    String  @default("none") @db.VarChar(50)
+  response         String? @db.Text
+  response_mkey    String? @db.VarChar(255)
+  module_co_names  String? @db.Text
+
+  @@index([owner_id], map: "owner_id")
+}
+
+model users_products_subscriptions {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  user_id           Int       @default(0) @db.UnsignedInt
+  module            String?   @db.VarChar(300)
+  items             String?   @db.Text
+  status            String    @default("active") @db.VarChar(50)
+  status_msg        String?   @db.Text
+  identifier        String?   @db.VarChar(300)
+  currency          Int       @default(0) @db.UnsignedInt
+  first_paid_fee    Decimal   @default(0.0000) @db.Decimal(16, 4)
+  last_paid_fee     Decimal   @default(0.0000) @db.Decimal(16, 4)
+  next_payable_fee  Decimal   @default(0.0000) @db.Decimal(16, 4)
+  last_paid_date    DateTime  @default(dbgenerated("('1971-01-01 00:00:00')")) @db.DateTime(0)
+  next_payable_date DateTime  @db.DateTime(0)
+  created_at        DateTime? @default(dbgenerated("('1971-01-01 00:00:00')")) @db.DateTime(0)
+  updated_at        DateTime? @default(dbgenerated("('1971-01-01 00:00:00')")) @db.DateTime(0)
+
+  @@index([currency], map: "currency")
+  @@index([identifier(length: 250)], map: "identifier")
+  @@index([user_id], map: "user_id")
+}
+
+model users_products_updowngrades {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  user_id    Int      @default(0) @db.UnsignedInt
+  owner_id   Int      @default(0) @db.UnsignedInt
+  invoice_id Int      @default(0) @db.UnsignedInt
+  old_pid    Int      @default(0) @db.UnsignedInt
+  new_pid    Int      @default(0) @db.UnsignedInt
+  type       String   @default("up") @db.VarChar(5)
+  cdate      DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  status     String   @default("waiting") @db.VarChar(10)
+  status_msg String?  @db.Text
+  refund     String   @default("none") @db.VarChar(30)
+  options    String?  @db.Text
+  unread     Int      @default(0) @db.UnsignedInt
+
+  @@index([invoice_id], map: "invoice_id")
+  @@index([owner_id], map: "owner_id")
+  @@index([user_id], map: "user_id")
+}
+
+model users_reminders {
+  id              Int                    @id @default(autoincrement()) @db.UnsignedInt
+  owner_id        Int                    @default(0) @db.UnsignedInt
+  note            String?                @db.Text
+  creation_time   DateTime               @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  status          users_reminders_status @default(active)
+  period          users_reminders_period @default(onetime)
+  period_datetime DateTime               @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  period_month    Int                    @default(-1)
+  period_day      Int                    @default(-1)
+  period_hour     Int                    @default(-1)
+  period_minute   Int                    @default(-1)
+}
+
+model users_reminders_logs {
+  id             Int      @id @default(autoincrement()) @db.UnsignedInt
+  owner_id       Int      @default(0)
+  reminding_date DateTime @default(dbgenerated("('1881-05-19')")) @db.Date
+  reminding_time DateTime @default(dbgenerated("('00:00:00')")) @db.Time(0)
+}
+
+model users_sms_groups {
+  id      Int      @id @default(autoincrement())
+  user_id Int      @default(0)
+  pid     Int      @default(0)
+  name    String?  @db.VarChar(200)
+  numbers String?  @db.Text
+  ctime   DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+}
+
+model users_sms_origin_prereg {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  origin_id   Int      @default(0) @db.UnsignedInt
+  ccode       String?  @db.VarChar(5)
+  attachments String?  @db.Text
+  cdate       DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  status      String?  @db.VarChar(40)
+  status_msg  String?  @db.VarChar(255)
+}
+
+model users_sms_origins {
+  id                 Int      @id @default(autoincrement()) @db.UnsignedInt
+  orkey              String?  @db.VarChar(30)
+  user_id            Int      @default(0)
+  pid                Int      @default(0)
+  name               String?  @db.VarChar(255)
+  ctime              DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  approved_date      DateTime @default(dbgenerated("('1881-05-19 00:00:00')")) @db.DateTime(0)
+  attachments        String?  @db.Text
+  status             String   @default("waiting") @db.VarChar(45)
+  status_message     String?  @db.Text
+  approved_countries String?  @db.VarChar(255)
+  unread             Int      @default(0) @db.UnsignedInt
+}
+
+model users_stored_cards {
+  id           Int     @id @default(autoincrement()) @db.UnsignedInt
+  user_id      Int     @default(0)
+  as_default   Int     @default(0)
+  card_country String? @db.VarChar(2)
+  card_type    String? @db.VarChar(50)
+  card_schema  String? @db.VarChar(50)
+  card_brand   String? @db.VarChar(100)
+  bank_name    String  @db.VarChar(255)
+  ln4          String  @db.VarChar(4)
+  cvc          String? @db.Text
+  name         String? @db.VarChar(255)
+  expiry_month String  @db.VarChar(2)
+  expiry_year  String  @db.VarChar(4)
+  module       String? @db.VarChar(255)
+  token        String? @db.Text
+
+  @@index([user_id], map: "user_id")
+}
+
+model users_tasks {
+  id          Int                @unique(map: "id") @default(autoincrement()) @db.UnsignedInt
+  owner_id    Int                @default(0) @db.UnsignedInt
+  admin_id    Int                @default(0) @db.UnsignedInt
+  user_id     Int                @default(0) @db.UnsignedInt
+  departments String?            @db.Text
+  title       String?            @db.VarChar(255)
+  description String?            @db.Text
+  c_date      DateTime           @default(dbgenerated("('1881-05-19')")) @db.Date
+  due_date    DateTime           @default(dbgenerated("('1881-05-19')")) @db.Date
+  status      users_tasks_status @default(waiting)
+  status_note String?            @db.Text
+}
+
+model users_whois_profiles {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  owner_id    Int?     @default(0) @db.UnsignedInt
+  detouse     Int      @default(0) @db.UnsignedInt
+  name        String?  @db.VarChar(255)
+  information String?  @db.Text
+  created_at  DateTime @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+  updated_at  DateTime @default(dbgenerated("('1970-01-01 00:00:00')")) @db.DateTime(0)
+}
+
+model visitors {
+  id       Int      @id @default(autoincrement()) @db.UnsignedInt
+  owner    String   @default("none") @db.VarChar(50)
+  owner_id Int      @default(0) @db.UnsignedInt
+  cdate    DateTime @default(dbgenerated("('0000-00-00')")) @db.Date
+  total    Int      @default(0) @db.UnsignedInt
+
+  @@index([owner], map: "owner")
+  @@index([owner_id], map: "owner_id")
+}
+
+model wgs_supportpin_config {
+  id       Int    @id @default(autoincrement())
+  localkey String @db.LongText
+}
+
+enum users_reminders_status {
+  active
+  inactive
+}
+
+enum users_reminders_period {
+  onetime
+  recurring
+}
+
+enum users_tasks_status {
+  waiting
+  inprocess
+  completed
+  postponed
+}
+
+enum notification_templates_period {
+  onetime
+  recurring
+}
