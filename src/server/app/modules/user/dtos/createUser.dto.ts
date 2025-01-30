@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const RegisterDto = z.object({
+export const CreateUserDto = z.object({
   type: z.string().default("member"),
   group_id: z.number().default(0),
   status: z.string().default("active"),
@@ -26,4 +26,4 @@ export const RegisterDto = z.object({
   aff_id: z.number().default(0),
 });
 
-export type RegisterDtoType = z.infer<typeof RegisterDto>;
+export type CreateUserDtoType = z.infer<typeof CreateUserDto>;
