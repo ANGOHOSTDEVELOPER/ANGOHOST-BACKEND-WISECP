@@ -24,6 +24,16 @@ export const CreateUserDto = z.object({
   privilege: z.number().default(0),
   blacklist: z.number().default(0),
   aff_id: z.number().default(0),
+  address: z.object({
+    company_tax_office: z.string().optional(),
+    company_tax_number: z.string().optional(),
+    identity: z.string().optional(),
+    city: z.string().optional(),
+    counti: z.string().optional(),
+    address: z.string().optional(),
+    zip_code: z.string().optional(),
+    detouse: z.string().optional().default("1"),
+  }),
 });
 
 export type CreateUserDtoType = z.infer<typeof CreateUserDto>;

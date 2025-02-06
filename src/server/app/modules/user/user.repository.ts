@@ -2,6 +2,8 @@ import { log } from "console";
 import { prisma } from "../../../../infra/db/prisma/prismaClient";
 import { CreateUserDtoType } from "./dtos/createUser.dto";
 import { UpdateUserDtoType } from "./dtos/updateUser.dto";
+import { CreateAddressDtoType } from "./dtos/createAddress.dto";
+import { users_addresses } from "@prisma/client";
 
 export class UserRepository {
 
@@ -52,7 +54,7 @@ export class UserRepository {
     });
   }
 
-  async createUser(data: CreateUserDtoType) {
+  async createUser(data: Omit<CreateUserDtoType, "address">) {
     const response = await this.getUserByRef(data.email);
     if (response) {
       throw new Error("User already exists");
@@ -71,5 +73,17 @@ export class UserRepository {
         password: password,
       },
     });
+  }
+
+  async createUserAdddress(data: CreateAddressDtoType) {
+    return await prisma.users_addresses.create({
+      data
+    })
+  }
+
+  async getUserAddress(id: number):Promise<users_addresses[]> {
+    return await prisma.users_addresses.findMany({
+      where: { owner_id: id }
+    })
   }
 }
