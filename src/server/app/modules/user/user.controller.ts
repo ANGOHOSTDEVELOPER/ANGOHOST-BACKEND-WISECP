@@ -123,3 +123,19 @@ export async function changePassword(req: FastifyRequest<{ Params: { id: string 
   }
   return reply.status(200).send({ success: true, message: "Password changed successfully!" });
 }
+
+export async function getUserAddress(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+  const { id } = req.params;
+  if (!id) {
+    return reply.status(400).send({ error: "Id not provided!" });
+  }
+  const address = await userService.getUserAddress(id);
+  if (!address) {
+    return reply
+      .status(404)
+      .send({ success: false, message: "Address not found!" });
+  }
+  return reply
+    .status(200)
+    .send({ success: true, message: "Address founded successfully!", data: address });
+}
