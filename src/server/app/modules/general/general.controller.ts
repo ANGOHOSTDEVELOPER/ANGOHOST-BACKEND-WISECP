@@ -63,3 +63,42 @@ export async function getCities(
       .send({ success: false, message: "Internal server error", error });
   }
 }
+
+
+export async function getAllHostingPlans(
+  req: FastifyRequest,
+  reply: FastifyReply
+) {
+  try {
+    
+    const plans = await generalService.getAllHostingPlans();
+    return reply.status(200).send({
+      success: true,
+      message: "Hosting plans founded successfully!",
+      data: plans,
+    });
+  } catch (error) {
+    reply
+      .status(500)
+      .send({ success: false, message: "Internal server error", error });
+  }
+}
+
+export async function getHostingPlan(
+  req: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = req.params;
+    const plan = await generalService.getHostingPlan(parseInt(id));
+    return reply.status(200).send({
+      success: true,
+      message: "Hosting plan founded successfully!",
+      data: plan,
+    });
+  } catch (error) {
+    reply
+      .status(500)
+      .send({ success: false, message: "Internal server error", error });
+  }
+}

@@ -18,4 +18,19 @@ export class GeneralRepository{
              }
         })
     }
+
+    async getAllHostingPlans() {
+        return await prisma.products.findMany({
+            where: {
+                category: 320,
+                visibility: 'visible'
+            }
+        })
+    }
+
+    async getHostingPlan(id: number) {
+        return await prisma.products.findFirst({
+            where: { id }
+        })
+    }
 }

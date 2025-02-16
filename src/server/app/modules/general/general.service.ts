@@ -18,4 +18,12 @@ export class GeneralService{
     async getCities(countryId: number) {
         return await this.generalRepository.getCities(countryId)
     }
+
+    async getAllHostingPlans() {
+        return await this.generalRepository.getAllHostingPlans()
+    }
+
+    async getHostingPlan(id: number) {
+        return await this.generalRepository.getHostingPlan(id)
+    }
 }
