@@ -64,17 +64,29 @@ export async function getCities(
   }
 }
 
-
-export async function getAllHostingPlans(
-  req: FastifyRequest,
+export async function getPlans(
+  req: FastifyRequest<{Params: { type: string }}>,
   reply: FastifyReply
 ) {
   try {
-    
-    const plans = await generalService.getAllHostingPlans();
+    const { type } = req.params;
+
+    if (!type) {
+      return reply.status(400).send({
+        success: false,
+        message: "Type not founded!",
+      });
+    }
+    const plans = await generalService.getPlans(type);
+    if (!plans) {
+      return reply.status(404).send({
+        success: false,
+        message: "Type not founded!",
+      });
+    }
     return reply.status(200).send({
       success: true,
-      message: "Hosting plans founded successfully!",
+      message: `${type.toLocaleLowerCase()} plans founded successfully!`,
       data: plans,
     });
   } catch (error) {
@@ -84,16 +96,16 @@ export async function getAllHostingPlans(
   }
 }
 
-export async function getHostingPlan(
+export async function getPlan(
   req: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply
 ) {
   try {
     const { id } = req.params;
-    const plan = await generalService.getHostingPlan(parseInt(id));
+    const plan = await generalService.getPlan(parseInt(id));
     return reply.status(200).send({
       success: true,
-      message: "Hosting plan founded successfully!",
+      message: "Plan founded successfully!",
       data: plan,
     });
   } catch (error) {

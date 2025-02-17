@@ -19,11 +19,18 @@ export class GeneralService{
         return await this.generalRepository.getCities(countryId)
     }
 
-    async getAllHostingPlans() {
-        return await this.generalRepository.getAllHostingPlans()
+    async getPlans(type: string) {
+        switch (type) {
+            case 'hosting':
+                return await this.generalRepository.getAllHostingPlans()
+            case 'ssl':
+                return await this.generalRepository.getAllSslPlans()
+            case 'resale':
+            return await this.generalRepository.getAllResalePlans()
+        }
     }
 
-    async getHostingPlan(id: number) {
-        return await this.generalRepository.getHostingPlan(id)
+    async getPlan(id: number) {
+        return await this.generalRepository.getPlan(id)
     }
 }
