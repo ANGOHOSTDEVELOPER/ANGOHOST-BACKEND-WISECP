@@ -63,3 +63,54 @@ export async function getCities(
       .send({ success: false, message: "Internal server error", error });
   }
 }
+
+export async function getPlans(
+  req: FastifyRequest<{Params: { type: string }}>,
+  reply: FastifyReply
+) {
+  try {
+    const { type } = req.params;
+
+    if (!type) {
+      return reply.status(400).send({
+        success: false,
+        message: "Type not founded!",
+      });
+    }
+    const plans = await generalService.getPlans(type);
+    if (!plans) {
+      return reply.status(404).send({
+        success: false,
+        message: "Type not founded!",
+      });
+    }
+    return reply.status(200).send({
+      success: true,
+      message: `${type.toLocaleLowerCase()} plans founded successfully!`,
+      data: plans,
+    });
+  } catch (error) {
+    reply
+      .status(500)
+      .send({ success: false, message: "Internal server error", error });
+  }
+}
+
+export async function getPlan(
+  req: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = req.params;
+    const plan = await generalService.getPlan(parseInt(id));
+    return reply.status(200).send({
+      success: true,
+      message: "Plan founded successfully!",
+      data: plan,
+    });
+  } catch (error) {
+    reply
+      .status(500)
+      .send({ success: false, message: "Internal server error", error });
+  }
+}
