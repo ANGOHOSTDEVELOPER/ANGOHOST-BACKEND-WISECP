@@ -21,7 +21,7 @@ export class InvoiceRepository {
 
     async getLastInvoiceNumber() {
         const lastInvoice = await prisma.invoices.findFirst({
-            select: { id: true },
+            select: { number: true },
             orderBy: { id: 'desc' }
         });
     

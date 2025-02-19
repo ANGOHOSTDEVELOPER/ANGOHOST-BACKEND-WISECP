@@ -14,9 +14,55 @@ interface HostingCategory {
 
 async function generateInvoiceNumber(invoiceRepository: InvoiceRepository) {
   const lastInvoiceNumber = await invoiceRepository.getLastInvoiceNumber();
-  const refinedNumber = (lastInvoiceNumber?.id as number) + 1;
+  const numberWithOutHash = parseInt(lastInvoiceNumber?.number?.replace('#', '') || "")
+  const refinedNumber = numberWithOutHash + 1;
   const invoiceNumber = "#" + refinedNumber.toString();
   return invoiceNumber;
+}
+
+async function generateUserData(userRepository: UserRepository, user_id: number) {
+  const address = await userRepository.getUserAddress(user_id);
+  const user = await userRepository.getUserByRef(user_id.toString())
+
+  if (user && address) {
+    const data = {
+      id: user_id,
+      email: user.email,
+      currency: 6,
+      phone: address[0].phone,
+      name: user.name,
+      surname: user.surname,
+      full_name: user.full_name,
+      lang: "pt",
+      default_address: address[0].id.toString(),
+      dealership: null,
+      taxation: null,
+      gsm_cc: 244,
+      gsm: address[0].phone?.replace('244', ''),
+      landline_cc: null,
+      landline_phone: null,
+      identity: null,
+      kind: "individual",
+      company_name: "",
+      company_tax_number: "",
+      company_tax_office: "",
+      address: {
+          id: address[0].id,
+          country_id: 6,
+          city: "Luanda",
+          counti: address[0].counti,
+          address: address[0].address,
+          zipcode: address[0].zipcode,
+          detouse: 1,
+          status: "active",
+          city_id: address[0].city,
+          country_code: "AO",
+          country_name: "Angola"
+      }
+    };
+    return data
+  }
+  return null
 }
 
 export class InvoiceService {
@@ -33,29 +79,14 @@ export class InvoiceService {
   async createInvoice(data: CreateInvoiceDtoType) {
     try {
       const { products, number, user_data, user_id, ...rest } = data;
-
       const invoiceNumber = await generateInvoiceNumber(this.invoiceRepository);
-      const address = await this.userRpository.getUserAddress(user_id);
-      const userData = `{\"identity\":null,\"kind\":\"${
-        address[address.length - 1].kind
-      }\",\"full_name\":\"${
-        address[address.length - 1].full_name
-      }\",\"email\":\"${
-        address[address.length - 1].email
-      }\",\"landline_phone\":\"\",\"address\":{\"country_id\":${
-        address[address.length - 1].country_id
-      },\"country_code\":\"AO\",\"country_name\":\"Angola\",\"city\":${
-        address[address.length - 1].city
-      },\"counti\":\"${address[address.length - 1].counti}\",\"zipcode\":\"${
-        address[address.length - 1].zipcode
-      }\",\"address\":\"${address[address.length - 1].address}\"},\"gsm\":\"${
-        address[address.length - 1].phone
-      }\"}`;
+
+      const userData = await generateUserData(this.userRpository, user_id)
 
       const invoice = await this.invoiceRepository.createInvoice({
         ...rest,
         number: invoiceNumber,
-        user_data: userData,
+        user_data: JSON.stringify(userData),
         user_id,
         products: [],
       });

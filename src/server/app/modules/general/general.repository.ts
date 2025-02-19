@@ -1,6 +1,7 @@
 import { prisma } from "../../../../infra/db/prisma/prismaClient";
 
 export class GeneralRepository {
+  
   async getAllDomainExtensions() {
     return await prisma.tldlist.findMany();
   }
@@ -20,14 +21,23 @@ export class GeneralRepository {
     });
   }
 
-  async getAllHostingPlans() {
+  async getPlans(categoryId: number) {
     return await prisma.products.findMany({
       where: {
-        category: 320,
+        category: categoryId,
         visibility: "visible",
         status: 'active'
       },
     });
+  }
+
+  async getPlanAddon(planId: number) {
+    return await prisma.products_lang.findFirst({
+      where: {
+        owner_id: planId,
+        lang: 'pt'
+      }
+    })
   }
 
   async getPlan(id: number) {
@@ -36,24 +46,13 @@ export class GeneralRepository {
     });
   }
 
-  async getAllSslPlans() {
-    return await prisma.products.findMany({
-      where: {
-        category: 197,
-        visibility: "visible",
-        status: 'active'
-      },
-    });
-  }
-
-  async getAllResalePlans() {
-    return await prisma.products.findMany({
-      where: {
-        category: 322,
-        visibility: "visible",
-        status: 'active'
-      },
-    });
-  }
-
+  async getProductPrice(productId: number, period: 'year'| 'month') {
+    return await prisma.prices.findFirst({
+        where: {
+            owner_id: productId,
+            period,
+            time: 1
+        }
+    })
+}
 }
